@@ -10,8 +10,8 @@ import SwiftUI
 @main
 struct Better_WheelApp: App {
     var body: some Scene {
-//        WindowGroup {
-//            ContentView()
-//        }
+        MenuBarExtra("Better Wheel", systemImage: AccessibilityManager.checkPermissions() ? "computermouse.fill" : "computermouse"){
+            ContentView()
+        }
     }
 }
