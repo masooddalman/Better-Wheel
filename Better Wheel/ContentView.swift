@@ -48,8 +48,7 @@ struct ContentView: View {
     }
     
     private func openPreferences() {
-        Logger.log("Opening preferences", type: .info)
-        // TODO: Implement preferences window
+        PreferencesWindowManager.shared.openPreferences()
     }
     
     private func quitApp() {
