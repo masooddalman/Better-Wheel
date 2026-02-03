@@ -66,6 +66,7 @@ struct GeneralPreferencesView: View {
                     .padding()
                     .background(.orange.opacity(0.1))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .transition(.move(edge: .top).combined(with: .opacity))
                 }
                 
                 // Speed & Smoothness Card
@@ -186,6 +187,22 @@ struct GeneralPreferencesView: View {
         .background(Color(nsColor: .windowBackgroundColor))
         .onAppear {
             hasPermission = AccessibilityManager.checkPermissions()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("AccessibilityPermissionChanged"))) { _ in
+            withAnimation(.easeInOut(duration: 0.3)) {
+                hasPermission = AccessibilityManager.checkPermissions()
+                Logger.log("Permission status changed to: \(hasPermission ? "GRANTED" : "DENIED")", type: hasPermission ? .success : .warning)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            // Check permission when app becomes active (user returns from System Settings)
+            let currentPermission = AccessibilityManager.checkPermissions()
+            if currentPermission != hasPermission {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    hasPermission = currentPermission
+                    Logger.log("Permission status changed to: \(hasPermission ? "GRANTED" : "DENIED")", type: hasPermission ? .success : .warning)
+                }
+            }
         }
     }
 }
