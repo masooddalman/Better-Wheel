@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
+import ServiceManagement
 
 struct GeneralPreferencesView: View {
     @EnvironmentObject var scrollEngine: ScrollEngine
     @State private var hasPermission = AccessibilityManager.checkPermissions()
+    @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     
     var body: some View {
         ScrollView {
@@ -68,6 +70,42 @@ struct GeneralPreferencesView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
+                
+                // Launch at Login Card
+                HStack {
+                    Image(systemName: "power")
+                        .font(.title2)
+                        .foregroundStyle(.secondary)
+                    
+                    VStack(alignment: .leading){
+                        Text("Launch at Login")
+                            .font(.headline)
+                        Text("Make mouse wheel smooth automatically when my Mac starts")
+                            .font(.caption)
+                            .foregroundStyle(Color(.gray))
+                            
+                    }
+                    
+                    Spacer()
+                    
+                    Toggle("", isOn: $launchAtLogin)
+                        .labelsHidden()
+                        .toggleStyle(.switch)
+                        .scaleEffect(1.2)
+                        .onChange(of: launchAtLogin) { oldValue, newValue in
+                            toggleLaunchAtLogin(enabled: newValue)
+                        }
+                }
+                .padding()
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+                .disabled(!scrollEngine.isEnabled || !hasPermission)
+                .opacity((scrollEngine.isEnabled && hasPermission) ? 1.0 : 0.5)
                 
                 // Speed & Smoothness Card
                 VStack(alignment: .leading, spacing: 20) {
@@ -187,6 +225,7 @@ struct GeneralPreferencesView: View {
         .background(Color(nsColor: .windowBackgroundColor))
         .onAppear {
             hasPermission = AccessibilityManager.checkPermissions()
+            launchAtLogin = SMAppService.mainApp.status == .enabled
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("AccessibilityPermissionChanged"))) { _ in
             withAnimation(.easeInOut(duration: 0.3)) {
@@ -196,6 +235,12 @@ struct GeneralPreferencesView: View {
                 if !currentPermission && hasPermission && scrollEngine.isEnabled {
                     scrollEngine.isEnabled = false
                     Logger.log("Better Wheel turned OFF due to permission revocation", type: .warning)
+                }
+                
+                // If permission was revoked and launch at login is ON, turn it OFF
+                if !currentPermission && hasPermission && launchAtLogin {
+                    toggleLaunchAtLogin(enabled: false)
+                    Logger.log("Launch at login turned OFF due to permission revocation", type: .warning)
                 }
                 
                 hasPermission = currentPermission
@@ -213,10 +258,34 @@ struct GeneralPreferencesView: View {
                         Logger.log("Better Wheel turned OFF due to permission revocation", type: .warning)
                     }
                     
+                    // If permission was revoked and launch at login is ON, turn it OFF
+                    if !currentPermission && hasPermission && launchAtLogin {
+                        toggleLaunchAtLogin(enabled: false)
+                        Logger.log("Launch at login turned OFF due to permission revocation", type: .warning)
+                    }
+                    
                     hasPermission = currentPermission
                     Logger.log("Permission status changed to: \(hasPermission ? "GRANTED" : "DENIED")", type: hasPermission ? .success : .warning)
                 }
             }
+        }
+    }
+    
+    // MARK: - Launch at Login
+    
+    private func toggleLaunchAtLogin(enabled: Bool) {
+        do {
+            if enabled {
+                try SMAppService.mainApp.register()
+                Logger.log("Launch at login enabled", type: .success)
+            } else {
+                try SMAppService.mainApp.unregister()
+                Logger.log("Launch at login disabled", type: .info)
+            }
+        } catch {
+            Logger.log("Failed to toggle launch at login: \(error.localizedDescription)", type: .error)
+            // Revert the toggle if it failed
+            launchAtLogin = !enabled
         }
     }
 }
