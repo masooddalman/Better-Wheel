@@ -144,19 +144,19 @@ struct GeneralPreferencesView: View {
                     Divider()
                         .background(Color.white.opacity(0.1))
                     
-                    // Smoothness Slider
+                    // Momentum Slider
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
-                            Image(systemName: "waveform.path.ecg")
+                            Image(systemName: "hand.tap.fill")
                                 .font(.title2)
                                 .foregroundStyle(.secondary)
                             
-                            Text("Smoothness")
+                            Text("Momentum")
                                 .font(.headline)
                             
                             Spacer()
                             
-                            Text("\(Int((1.0 - scrollEngine.smoothingFactor) * 100))% Smooth")
+                            Text(momentumLabel(for: scrollEngine.smoothingFactor))
                                 .font(.subheadline)
                                 .fontWeight(.medium)
                                 .padding(.horizontal, 12)
@@ -164,7 +164,7 @@ struct GeneralPreferencesView: View {
                                 .background(.ultraThinMaterial)
                                 .clipShape(RoundedRectangle(cornerRadius: 6))
                             
-                            Image(systemName: "wave.3.up")
+                            Image(systemName: "figure.skateboarding")
                                 .font(.title2)
                                 .foregroundStyle(.secondary)
                         }
@@ -174,6 +174,10 @@ struct GeneralPreferencesView: View {
                             .onChange(of: scrollEngine.smoothingFactor) { oldValue, newValue in
                                 scrollEngine.savePreferences()
                             }
+                        
+                        Text("Lower = Responsive control • Higher = Smooth gliding")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
                 }
                 .padding()
@@ -268,6 +272,25 @@ struct GeneralPreferencesView: View {
                     Logger.log("Permission status changed to: \(hasPermission ? "GRANTED" : "DENIED")", type: hasPermission ? .success : .warning)
                 }
             }
+        }
+    }
+    
+    // MARK: - Momentum Label Helper
+    
+    private func momentumLabel(for value: Double) -> String {
+        if value < 0.35 {
+            // Precise range: 0.1 to 0.349
+            // 0.1 = 100%, 0.349 = 1%
+            let percentage = Int((1.0 - (value - 0.1) / (0.35 - 0.1)) * 100)
+            return "\(percentage)% Precise"
+        } else if value <= 0.65 {
+            // Balanced range: 0.35 to 0.65
+            return "Balanced"
+        } else {
+            // Glide range: 0.651 to 1.0
+            // 0.651 = 1%, 1.0 = 100%
+            let percentage = Int((value - 0.65) / (1.0 - 0.65) * 100)
+            return "\(percentage)% Glide"
         }
     }
     
