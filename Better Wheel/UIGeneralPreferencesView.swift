@@ -190,7 +190,15 @@ struct GeneralPreferencesView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("AccessibilityPermissionChanged"))) { _ in
             withAnimation(.easeInOut(duration: 0.3)) {
-                hasPermission = AccessibilityManager.checkPermissions()
+                let currentPermission = AccessibilityManager.checkPermissions()
+                
+                // If permission was revoked and Better Wheel is ON, turn it OFF
+                if !currentPermission && hasPermission && scrollEngine.isEnabled {
+                    scrollEngine.isEnabled = false
+                    Logger.log("Better Wheel turned OFF due to permission revocation", type: .warning)
+                }
+                
+                hasPermission = currentPermission
                 Logger.log("Permission status changed to: \(hasPermission ? "GRANTED" : "DENIED")", type: hasPermission ? .success : .warning)
             }
         }
@@ -199,6 +207,12 @@ struct GeneralPreferencesView: View {
             let currentPermission = AccessibilityManager.checkPermissions()
             if currentPermission != hasPermission {
                 withAnimation(.easeInOut(duration: 0.3)) {
+                    // If permission was revoked and Better Wheel is ON, turn it OFF
+                    if !currentPermission && hasPermission && scrollEngine.isEnabled {
+                        scrollEngine.isEnabled = false
+                        Logger.log("Better Wheel turned OFF due to permission revocation", type: .warning)
+                    }
+                    
                     hasPermission = currentPermission
                     Logger.log("Permission status changed to: \(hasPermission ? "GRANTED" : "DENIED")", type: hasPermission ? .success : .warning)
                 }

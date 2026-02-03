@@ -24,7 +24,7 @@ class AccessibilityManager {
     static func showPermissionAlert() {
         let alert = NSAlert()
         alert.messageText = "Accessibility Permission Required"
-        alert.informativeText = "Better Wheel needs accessibility permissions to intercept and modify scroll events.\n\nSteps:\n1. Click 'Open System Settings'\n2. Enable Better Wheel in the Accessibility list\n3. QUIT and RESTART Better Wheel\n\nThe app MUST be restarted after granting permission!"
+        alert.informativeText = "Better Wheel needs accessibility permissions to intercept and modify scroll events.\n\nSteps:\n1. Click 'Open System Settings'\n2. Enable Better Wheel in the Accessibility list"
         alert.alertStyle = .warning
         alert.addButton(withTitle: "Open System Settings")
         alert.addButton(withTitle: "Quit App")
