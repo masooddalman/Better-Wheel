@@ -10,13 +10,25 @@ import SwiftUI
 @main
 struct Better_WheelApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @StateObject private var scrollEngine = ScrollEngine()
     
     var body: some Scene {
         MenuBarExtra("Better Wheel", systemImage: AccessibilityManager.checkPermissions() ? "computermouse.fill" : "computermouse"){
             ContentView()
+                .environmentObject(scrollEngine)
+                .onAppear {
+                    // Set scroll engine in preferences manager when view appears
+                    PreferencesWindowManager.shared.setScrollEngine(scrollEngine)
+                    
+                    if scrollEngine.isEnabled {
+                        Logger.log("Starting event tap from app launch", type: .info)
+                        scrollEngine.startEventTap()
+                    }
+                }
         }
     }
 }
+
 // MARK: - App Delegate
 class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -32,5 +44,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
     }
+    
+    func applicationWillTerminate(_ notification: Notification) {
+        Logger.log("Application terminating", type: .info)
+    }
 }
-

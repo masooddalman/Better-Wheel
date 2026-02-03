@@ -8,20 +8,10 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var isEnabled: Bool = true
+    @EnvironmentObject var scrollEngine: ScrollEngine
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Enable/Disable toggle
-            Toggle("Enable Better Wheel", isOn: $isEnabled)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .onChange(of: isEnabled) { oldValue, newValue in
-                    Logger.log("Better Wheel \(newValue ? "enabled" : "disabled")", type: .info)
-                }
-            
-            Divider()
-            
             // Preferences button
             Button {
                 openPreferences()
@@ -59,4 +49,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .environmentObject(ScrollEngine())
 }

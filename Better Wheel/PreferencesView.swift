@@ -77,4 +77,5 @@ enum PreferenceSection: String, CaseIterable, Identifiable {
 
 #Preview {
     PreferencesView()
+        .environmentObject(ScrollEngine())
 }

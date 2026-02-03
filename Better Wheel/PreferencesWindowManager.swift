@@ -13,19 +13,31 @@ class PreferencesWindowManager {
     static let shared = PreferencesWindowManager()
     
     private var preferencesWindow: NSWindow?
+    private var scrollEngine: ScrollEngine?
     
     private init() {}
     
+    /// Set the scroll engine reference
+    func setScrollEngine(_ engine: ScrollEngine) {
+        self.scrollEngine = engine
+    }
+    
     /// Opens the preferences window
     func openPreferences() {
+        guard let scrollEngine = scrollEngine else {
+            Logger.log("ScrollEngine not set in PreferencesWindowManager", type: .error)
+            return
+        }
+        
         if let window = preferencesWindow {
             // If window already exists, bring it to front
             window.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
             Logger.log("Brought existing preferences window to front", type: .info)
         } else {
-            // Create new window
+            // Create new window with environment object
             let preferencesView = PreferencesView()
+                .environmentObject(scrollEngine)
             let hostingController = NSHostingController(rootView: preferencesView)
             
             let window = NSWindow(contentViewController: hostingController)
