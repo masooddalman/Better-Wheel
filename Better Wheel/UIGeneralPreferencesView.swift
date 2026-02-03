@@ -9,128 +9,189 @@ import SwiftUI
 
 struct GeneralPreferencesView: View {
     @EnvironmentObject var scrollEngine: ScrollEngine
+    @State private var hasPermission = AccessibilityManager.checkPermissions()
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                // Header
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Scroll Wheel Settings")
-                        .font(.title2)
+            VStack(spacing: 16) {
+                // Smooth Scroll Toggle Card
+                HStack {
+                    Text("Better Wheel:")
+                        .font(.title3)
                         .fontWeight(.semibold)
                     
-                    Text("Customize your mouse wheel scrolling experience")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    Text(scrollEngine.isEnabled ? "ON" : "OFF")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundStyle(scrollEngine.isEnabled ? .blue : .secondary)
+                    
+                    Spacer()
+                    
+                    Toggle("", isOn: $scrollEngine.isEnabled)
+                        .labelsHidden()
+                        .toggleStyle(.switch)
+                        .scaleEffect(1.2)
+                        .onChange(of: scrollEngine.isEnabled) { oldValue, newValue in
+                            scrollEngine.savePreferences()
+                        }
+                }
+                .padding()
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+                .disabled(!hasPermission)
+                .opacity(hasPermission ? 1.0 : 0.5)
+                
+                // Permission Warning (shown when no permission)
+                if !hasPermission {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                        
+                        Text("Accessibility permission required")
+                            .font(.subheadline)
+                        
+                        Spacer()
+                        
+                        Button("Grant Permission") {
+                            AccessibilityManager.openAccessibilitySettings()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
+                    }
+                    .padding()
+                    .background(.orange.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 
-                Divider()
-                
-                // Settings
+                // Speed & Smoothness Card
                 VStack(alignment: .leading, spacing: 20) {
-                    // Smoothing Factor
-                    VStack(alignment: .leading, spacing: 8) {
+                    // Speed Slider
+                    VStack(alignment: .leading, spacing: 12) {
                         HStack {
-                            Text("Smoothing")
-                                .fontWeight(.medium)
+                            Image(systemName: "tortoise.fill")
+                                .font(.title2)
+                                .foregroundStyle(.secondary)
+                            
+                            Text("Speed")
+                                .font(.headline)
+                            
                             Spacer()
-                            Text(String(format: "%.2f", scrollEngine.smoothingFactor))
-                                .foregroundStyle(.secondary)
-                                .monospacedDigit()
-                        }
-                        
-                        Slider(value: $scrollEngine.smoothingFactor, in: 0.1...1.0) {
-                            Text("Smoothing")
-                        } minimumValueLabel: {
-                            Text("Smooth")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        } maximumValueLabel: {
-                            Text("Responsive")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        .onChange(of: scrollEngine.smoothingFactor) { oldValue, newValue in
-                            scrollEngine.savePreferences()
-                        }
-                        
-                        Text("Lower values create smoother scrolling, higher values are more responsive")
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-                    }
-                    
-                    // Scroll Multiplier
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text("Scroll Speed")
-                                .fontWeight(.medium)
-                            Spacer()
+                            
                             Text(String(format: "%.1fx", scrollEngine.scrollMultiplier))
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 4)
+                                .background(.ultraThinMaterial)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                            
+                            Image(systemName: "hare.fill")
+                                .font(.title2)
                                 .foregroundStyle(.secondary)
-                                .monospacedDigit()
                         }
                         
-                        Slider(value: $scrollEngine.scrollMultiplier, in: 0.5...3.0) {
-                            Text("Scroll Speed")
-                        } minimumValueLabel: {
-                            Text("Slow")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        } maximumValueLabel: {
-                            Text("Fast")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        .onChange(of: scrollEngine.scrollMultiplier) { oldValue, newValue in
-                            scrollEngine.savePreferences()
-                        }
-                        
-                        Text("Adjust how far the page scrolls with each wheel tick")
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
+                        Slider(value: $scrollEngine.scrollMultiplier, in: 0.5...3.0)
+                            .tint(.blue)
+                            .onChange(of: scrollEngine.scrollMultiplier) { oldValue, newValue in
+                                scrollEngine.savePreferences()
+                            }
                     }
                     
                     Divider()
+                        .background(Color.white.opacity(0.1))
                     
-                    // Toggles
+                    // Smoothness Slider
                     VStack(alignment: .leading, spacing: 12) {
-                        Toggle(isOn: $scrollEngine.enableInertia) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Enable Better Wheel")
-                                    .fontWeight(.medium)
-                                Text("fixes jittery scrolling")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                        .onChange(of: scrollEngine.enableInertia) { oldValue, newValue in
-                            scrollEngine.savePreferences()
+                        HStack {
+                            Image(systemName: "waveform.path.ecg")
+                                .font(.title2)
+                                .foregroundStyle(.secondary)
+                            
+                            Text("Smoothness")
+                                .font(.headline)
+                            
+                            Spacer()
+                            
+                            Text("\(Int((1.0 - scrollEngine.smoothingFactor) * 100))% Smooth")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 4)
+                                .background(.ultraThinMaterial)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                            
+                            Image(systemName: "wave.3.up")
+                                .font(.title2)
+                                .foregroundStyle(.secondary)
                         }
                         
-                        Toggle(isOn: $scrollEngine.invertScroll) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Invert Scroll Direction")
-                                    .fontWeight(.medium)
-                                Text("Reverse the scrolling direction")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                        Slider(value: $scrollEngine.smoothingFactor, in: 0.1...1.0)
+                            .tint(.blue)
+                            .onChange(of: scrollEngine.smoothingFactor) { oldValue, newValue in
+                                scrollEngine.savePreferences()
                             }
-                        }
+                    }
+                }
+                .padding()
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+                .disabled(!scrollEngine.isEnabled || !hasPermission)
+                .opacity((scrollEngine.isEnabled && hasPermission) ? 1.0 : 0.5)
+                
+                // Invert Scroll Direction Card
+                HStack {
+                    Image(systemName: "arrow.up.arrow.down")
+                        .font(.title2)
+                        .foregroundStyle(.secondary)
+                    
+                    Text("Invert Scroll Direction")
+                        .font(.headline)
+                    
+                    Spacer()
+                    
+                    Toggle("", isOn: $scrollEngine.invertScroll)
+                        .labelsHidden()
+                        .toggleStyle(.switch)
+                        .scaleEffect(1.2)
                         .onChange(of: scrollEngine.invertScroll) { oldValue, newValue in
                             scrollEngine.savePreferences()
                         }
-                        
-                    }
                 }
+                .padding()
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+                .disabled(!scrollEngine.isEnabled || !hasPermission)
+                .opacity((scrollEngine.isEnabled && hasPermission) ? 1.0 : 0.5)
+                
+                Spacer()
             }
             .padding(24)
         }
-        .padding()
         .navigationTitle("General")
+        .background(Color(nsColor: .windowBackgroundColor))
+        .onAppear {
+            hasPermission = AccessibilityManager.checkPermissions()
+        }
     }
 }
 
 #Preview {
     GeneralPreferencesView()
         .environmentObject(ScrollEngine())
+        .frame(width: 500, height: 600)
 }
