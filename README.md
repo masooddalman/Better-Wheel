@@ -1,6 +1,5 @@
 # Better Wheel
 
-<!-- Banner Placeholder - Add your banner image here -->
 ![Better Wheel Banner](./assets/banner.jpg)
 
 > Transform your mouse wheel scrolling experience on macOS with smooth, customizable momentum scrolling.
@@ -18,6 +17,8 @@ https://github.com/user-attachments/assets/4246dabb-647f-4e7f-9e08-2b746376b493
 ---
 
 ## ✨ Features
+
+![Preferences Screen shot](./assets/screenShot1.png)
 
 ### 🎯 Core Features
 - **Smooth Momentum Scrolling** - Transform choppy mouse wheel input into fluid, natural scrolling
