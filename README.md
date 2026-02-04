@@ -13,6 +13,8 @@
 
 Whether you prefer precise, responsive control or smooth gliding like you're skating on ice, Better Wheel gives you complete control over your scrolling behavior.
 
+https://github.com/user-attachments/assets/4246dabb-647f-4e7f-9e08-2b746376b493
+
 ---
 
 ## ✨ Features
