@@ -77,7 +77,7 @@ Whether you prefer precise, responsive control or smooth gliding like you're ska
 ## 🚀 Installation
 
 ### Download
-1. Download the latest release from the [Releases](https://github.com/yourusername/better-wheel/releases) page
+1. Download the latest release from the [Releases](https://github.com/masooddalman/Better-Wheel/releases) page
 2. Open the downloaded `.dmg` file
 3. Drag **Better Wheel** to your Applications folder
 4. Launch Better Wheel from Applications
@@ -145,8 +145,8 @@ Contributions are welcome! Here's how you can help:
 
 Having issues? Here's how to get help:
 
-- **Bug Reports** - [Open an issue](https://github.com/yourusername/better-wheel/issues)
-- **Feature Requests** - [Start a discussion](https://github.com/yourusername/better-wheel/discussions)
+- **Bug Reports** - [Open an issue](https://github.com/masooddalman/Better-Wheel/issues)
+- **Feature Requests** - [Start a discussion](https://github.com/masooddalman/Better-Wheel/issues)
 - **Questions** - Check existing issues or start a new discussion
 
 ---
